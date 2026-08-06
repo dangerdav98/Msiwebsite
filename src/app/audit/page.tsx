@@ -73,6 +73,10 @@ export default function AuditPage() {
     }
 
     setGateSubmitting(true);
+    const numberedAnswers = allQuestions(lang).reduce<Record<string, Answer | null>>((acc, q, i) => {
+      acc[String(i + 1)] = answers[q.id] ?? null;
+      return acc;
+    }, {});
     const supabase = createClient();
     await supabase.from("audit_leads").insert({
       name: gateName.trim() || null,
@@ -81,7 +85,7 @@ export default function AuditPage() {
       email: gateEmail.trim() || null,
       lang,
       gap_count: gapCount,
-      answers,
+      answers: numberedAnswers,
     });
     setGateSubmitting(false);
 
