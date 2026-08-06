@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Lang } from "./home-content";
 
@@ -8,6 +11,12 @@ interface NavProps {
 }
 
 export default function Nav({ lang, setLang, pathname }: NavProps) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
   const items = [
     { href: "/", label: lang === "en" ? "Home" : "Inicio" },
     { href: "/problem", label: lang === "en" ? "The Problem" : "El Problema" },
@@ -21,7 +30,7 @@ export default function Nav({ lang, setLang, pathname }: NavProps) {
       <div className="nav-logo">
         Surface <b>Growth</b> Advisor
       </div>
-      <ul className="nav-links">
+      <ul className={`nav-links ${mobileOpen ? "open" : ""}`}>
         {items.map((item) => (
           <li key={item.href}>
             <Link href={item.href} style={{ color: pathname === item.href ? "var(--gold)" : undefined }}>
@@ -35,12 +44,22 @@ export default function Nav({ lang, setLang, pathname }: NavProps) {
           </Link>
         </li>
       </ul>
-      <div className="lang-btns">
-        <button className={`lang-btn ${lang === "en" ? "active" : ""}`} onClick={() => setLang("en")}>
-          EN
-        </button>
-        <button className={`lang-btn ${lang === "es" ? "active" : ""}`} onClick={() => setLang("es")}>
-          ES
+      <div className="nav-right">
+        <div className="lang-btns">
+          <button className={`lang-btn ${lang === "en" ? "active" : ""}`} onClick={() => setLang("en")}>
+            EN
+          </button>
+          <button className={`lang-btn ${lang === "es" ? "active" : ""}`} onClick={() => setLang("es")}>
+            ES
+          </button>
+        </div>
+        <button
+          className="mobile-menu-btn"
+          aria-label={mobileOpen ? "Close menu" : "Open menu"}
+          aria-expanded={mobileOpen}
+          onClick={() => setMobileOpen((v) => !v)}
+        >
+          {mobileOpen ? "✕" : "☰"}
         </button>
       </div>
     </nav>

@@ -51,6 +51,11 @@
 .home-page .nav-cta:hover {
   background: var(--gold-l) !important;
 }
+.home-page .nav-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
 .home-page .lang-btns {
   display: flex;
   gap: 6px;
@@ -72,6 +77,16 @@
   background: var(--gold);
   color: var(--ink);
   border-color: var(--gold);
+}
+.home-page .mobile-menu-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--white);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 2px;
 }
 
 /* ── HERO ── */
@@ -737,8 +752,38 @@
 
 /* ── MOBILE ── */
 @media (max-width: 768px) {
+  .home-page .mobile-menu-btn {
+    display: block;
+  }
   .home-page .nav-links {
     display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    background: var(--ink);
+    border-bottom: 1px solid rgba(201, 168, 76, 0.2);
+    max-height: calc(100vh - 64px);
+    overflow-y: auto;
+  }
+  .home-page .nav-links.open {
+    display: flex;
+  }
+  .home-page .nav-links li {
+    width: 100%;
+  }
+  .home-page .nav-links a {
+    display: block;
+    padding: 16px 5vw;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  .home-page .nav-links .nav-cta {
+    margin: 14px 5vw;
+    text-align: center;
+    display: block;
   }
   .home-page .about-inner,
   .home-page .contact-inner {
