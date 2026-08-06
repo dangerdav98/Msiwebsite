@@ -42,3 +42,8 @@ next-env.d.ts
 
 # claude
 .claude/settings.local.json
+
+# agent skills (installed artifacts; skills-lock.json is the reproducible manifest.
+# .claude/skills symlinks use absolute paths, so they aren't portable across machines)
+.agents/
+.claude/skills/

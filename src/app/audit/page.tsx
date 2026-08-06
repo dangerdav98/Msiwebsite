@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import "./audit.css";
 import { audit, allQuestions, type Lang } from "./audit-content";
+import { createClient } from "@/lib/supabase/client";
 
 type Screen = "hero" | "audit" | "gate" | "results";
 type Answer = "yes" | "no";
@@ -24,6 +25,7 @@ export default function AuditPage() {
   const [gatePhone, setGatePhone] = useState("");
   const [gateEmail, setGateEmail] = useState("");
   const [gateNameError, setGateNameError] = useState(false);
+  const [gateSubmitting, setGateSubmitting] = useState(false);
   const gateNameRef = useRef<HTMLInputElement>(null);
 
   const c = audit[lang];
@@ -63,12 +65,26 @@ export default function AuditPage() {
     }, 300);
   }
 
-  function revealResults() {
+  async function revealResults() {
     if (!gateName.trim() && !gatePhone.trim() && !gateEmail.trim()) {
       setGateNameError(true);
       gateNameRef.current?.focus();
       return;
     }
+
+    setGateSubmitting(true);
+    const supabase = createClient();
+    await supabase.from("audit_leads").insert({
+      name: gateName.trim() || null,
+      business_name: gateBiz.trim() || null,
+      phone: gatePhone.trim() || null,
+      email: gateEmail.trim() || null,
+      lang,
+      gap_count: gapCount,
+      answers,
+    });
+    setGateSubmitting(false);
+
     setDisplayName(gateName.trim() || gateBiz.trim());
     setScreen("results");
     setTimeout(() => setStickyVisible(true), 1500);
@@ -210,8 +226,8 @@ export default function AuditPage() {
             <input type="text" placeholder={c.gateBiz} value={gateBiz} onChange={(e) => setGateBiz(e.target.value)} />
             <input type="tel" placeholder={c.gatePhone} value={gatePhone} onChange={(e) => setGatePhone(e.target.value)} />
             <input type="email" placeholder={c.gateEmail} value={gateEmail} onChange={(e) => setGateEmail(e.target.value)} />
-            <button className="btn-reveal" onClick={revealResults}>
-              {c.gateBtn}
+            <button className="btn-reveal" onClick={revealResults} disabled={gateSubmitting}>
+              {gateSubmitting ? (lang === "es" ? "Enviando..." : "Sending...") : c.gateBtn}
             </button>
           </div>
           <p className="gate-privacy">{c.gatePrivacy}</p>

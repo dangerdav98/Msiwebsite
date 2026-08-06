@@ -112,8 +112,10 @@ export const homeContent: Record<Lang, Record<string, string>> = {
     "f-o4": "12-Month Plan ($18,000)",
     "f-o5": "Just exploring",
     "f-btn": "Send My Message →",
+    "f-sending": "Sending...",
     "f-note": "I respond within 24 hours. Usually same day.",
     "f-sent": "✓ Message Sent — I'll be in touch soon!",
+    "f-error": "Something went wrong. Please try again or email me directly.",
     "footer-txt": "© 2025 Surface Growth Advisor LLC — Utah, USA. Serving clients nationwide.",
   },
   es: {
@@ -227,8 +229,10 @@ export const homeContent: Record<Lang, Record<string, string>> = {
     "f-o4": "Plan de 12 Meses ($18,000)",
     "f-o5": "Solo explorando",
     "f-btn": "Enviar Mi Mensaje →",
+    "f-sending": "Enviando...",
     "f-note": "Respondo en 24 horas. Generalmente el mismo día.",
     "f-sent": "✓ Mensaje Enviado — Le contactaré pronto!",
+    "f-error": "Algo salió mal. Intente de nuevo o envíeme un correo directamente.",
     "footer-txt": "© 2025 Surface Growth Advisor LLC — Utah, EE.UU. Sirviendo clientes en todo el país.",
   },
 };

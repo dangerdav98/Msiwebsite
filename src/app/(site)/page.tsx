@@ -4,24 +4,48 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 import { homeContent } from "./home-content";
 import { useLang } from "./lang-context";
+import { createClient } from "@/lib/supabase/client";
 
 export default function HomePage() {
   const { lang } = useLang();
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(false);
 
   const nameRef = useRef<HTMLInputElement>(null);
   const bizRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const phoneRef = useRef<HTMLInputElement>(null);
+  const serviceRef = useRef<HTMLSelectElement>(null);
   const msgRef = useRef<HTMLTextAreaElement>(null);
 
   const t = homeContent[lang];
 
-  function submitForm() {
+  async function submitForm() {
     if (!nameRef.current?.value.trim() && !emailRef.current?.value.trim()) {
       nameRef.current?.focus();
       return;
     }
+    setSubmitting(true);
+    setError(false);
+
+    const supabase = createClient();
+    const { error: insertError } = await supabase.from("contact_submissions").insert({
+      name: nameRef.current?.value.trim() || "",
+      business_name: bizRef.current?.value.trim() || null,
+      email: emailRef.current?.value.trim() || null,
+      phone: phoneRef.current?.value.trim() || null,
+      service_interest: serviceRef.current?.value || null,
+      message: msgRef.current?.value.trim() || null,
+    });
+
+    setSubmitting(false);
+
+    if (insertError) {
+      setError(true);
+      return;
+    }
+
     setSubmitted(true);
     [nameRef, bizRef, emailRef, phoneRef, msgRef].forEach((r) => {
       if (r.current) r.current.value = "";
@@ -166,7 +190,7 @@ export default function HomePage() {
               </div>
               <input ref={emailRef} type="email" placeholder={t["f-email"]} />
               <input ref={phoneRef} type="tel" placeholder={t["f-phone"]} />
-              <select defaultValue="">
+              <select ref={serviceRef} defaultValue="">
                 <option value="" disabled>
                   {t["f-sel-placeholder"]}
                 </option>
@@ -180,11 +204,16 @@ export default function HomePage() {
               <button
                 className="btn-submit"
                 onClick={submitForm}
-                disabled={submitted}
+                disabled={submitting || submitted}
                 style={submitted ? { background: "#16A34A" } : undefined}
               >
-                {submitted ? t["f-sent"] : t["f-btn"]}
+                {submitted ? t["f-sent"] : submitting ? t["f-sending"] : t["f-btn"]}
               </button>
+              {error && (
+                <p className="form-note" style={{ color: "var(--red)" }}>
+                  {t["f-error"]}
+                </p>
+              )}
               <p className="form-note">{t["f-note"]}</p>
             </div>
           </div>
