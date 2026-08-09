@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getStripe } from "@/lib/stripe/server";
 import { createAnonServerClient } from "@/lib/supabase/server";
+import { resolveOrigin } from "@/lib/site-url";
 
 interface CheckoutBody {
   plan: "3mo" | "12mo";
@@ -53,7 +54,7 @@ export async function POST(req: NextRequest) {
         ? "Plan de 12 Meses"
         : "12-Month Plan";
 
-  const origin = req.nextUrl.origin;
+  const origin = resolveOrigin(req);
   const unitAmount = Math.round(depositNum * 100);
   const orderId = randomUUID();
 
