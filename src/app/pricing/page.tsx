@@ -16,7 +16,7 @@ export default function PricingPage() {
 
   function switchPlan(n: 3 | 12) {
     setCurrentPlan(n);
-    setDeposit(n === 3 ? 1000 : 1500);
+    setDeposit(1500);
   }
 
   const calc = useMemo(() => {
@@ -206,9 +206,13 @@ export default function PricingPage() {
                     type="number"
                     className="calc-input"
                     value={deposit}
-                    min={500}
+                    min={1500}
                     max={currentPlan === 3 ? 5000 : 18000}
                     onChange={(e) => setDeposit(parseFloat(e.target.value) || 0)}
+                    onBlur={(e) => {
+                      const v = parseFloat(e.target.value) || 0;
+                      if (v < 1500) setDeposit(1500);
+                    }}
                   />
                 </div>
                 <div className="input-hint">{t.depHint}</div>

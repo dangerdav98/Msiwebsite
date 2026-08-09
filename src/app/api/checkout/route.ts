@@ -32,8 +32,9 @@ export async function POST(req: NextRequest) {
   const depositNum = Number(deposit);
   const monthsNum = Number(months);
   const planCap = plan === "3mo" ? 5000 : 18000;
-  if (!Number.isFinite(depositNum) || depositNum < 500 || depositNum > planCap) {
-    return NextResponse.json({ error: "Invalid deposit amount" }, { status: 400 });
+  const MIN_DEPOSIT = 1500;
+  if (!Number.isFinite(depositNum) || depositNum < MIN_DEPOSIT || depositNum > planCap) {
+    return NextResponse.json({ error: `Deposit must be at least $${MIN_DEPOSIT.toLocaleString()}` }, { status: 400 });
   }
   if (!Number.isFinite(monthsNum) || monthsNum < 1 || monthsNum > 24) {
     return NextResponse.json({ error: "Invalid months" }, { status: 400 });

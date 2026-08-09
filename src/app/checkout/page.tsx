@@ -19,7 +19,7 @@ function CheckoutContent() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const valid = Number.isFinite(deposit) && deposit >= 500 && Number.isFinite(months) && months >= 1;
+  const valid = Number.isFinite(deposit) && deposit >= 1500 && Number.isFinite(months) && months >= 1;
 
   const total = planParam === "12" ? 18000 : 5000;
   const planLabel =
@@ -91,8 +91,15 @@ function CheckoutContent() {
         throw new Error(data.error || "Checkout failed");
       }
       window.location.href = data.url;
-    } catch {
-      setError(lang === "es" ? "No se pudo iniciar el pago. Intente de nuevo." : "Could not start checkout. Please try again.");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "";
+      setError(
+        message && message !== "Checkout failed"
+          ? message
+          : lang === "es"
+            ? "No se pudo iniciar el pago. Intente de nuevo."
+            : "Could not start checkout. Please try again."
+      );
       setSubmitting(false);
     }
   }
