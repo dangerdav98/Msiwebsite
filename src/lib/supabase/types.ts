@@ -83,6 +83,63 @@ export type Database = {
         }
         Relationships: []
       }
+      orders: {
+        Row: {
+          business_name: string | null
+          created_at: string
+          deposit_amount: number
+          email: string | null
+          id: string
+          lang: string
+          monthly_amount: number
+          months: number
+          name: string
+          phone: string | null
+          plan: string
+          status: string
+          stripe_checkout_session_id: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          business_name?: string | null
+          created_at?: string
+          deposit_amount: number
+          email?: string | null
+          id?: string
+          lang?: string
+          monthly_amount: number
+          months: number
+          name: string
+          phone?: string | null
+          plan: string
+          status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          business_name?: string | null
+          created_at?: string
+          deposit_amount?: number
+          email?: string | null
+          id?: string
+          lang?: string
+          monthly_amount?: number
+          months?: number
+          name?: string
+          phone?: string | null
+          plan?: string
+          status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

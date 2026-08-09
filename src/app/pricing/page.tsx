@@ -31,14 +31,7 @@ export default function PricingPage() {
     return { total, monthly, months, payMonths };
   }, [currentPlan, deposit]);
 
-  const planName = currentPlan === 3 ? (lang === "es" ? "Plan de 3 Meses" : "3-Month Plan") : lang === "es" ? "Plan de 12 Meses" : "12-Month Plan";
-  const mailSubject = encodeURIComponent(`${planName} — $${calc.monthly.toLocaleString()} deposit${name ? " — " + name : ""}`);
-  const mailBody = encodeURIComponent(
-    `Hi David,\n\nI used the payment calculator and I'm interested in the ${planName}.\n\nDeposit: $${calc.monthly.toLocaleString()}\nMonthly: $${calc.monthly.toLocaleString()}\nMonths: ${calc.months}\n${
-      name ? "Name: " + name : ""
-    }\n\nPlease reach out to discuss next steps.`
-  );
-  const calcCtaHref = `mailto:david@surfacegrowthco.com?subject=${mailSubject}&body=${mailBody}`;
+  const checkoutHref = `/checkout?plan=${currentPlan}&deposit=${calc.monthly}&months=${calc.months}&lang=${lang}&name=${encodeURIComponent(name)}`;
 
   const timelineBars = [];
   for (let i = 0; i < Math.min(calc.payMonths, 12); i++) {
@@ -276,9 +269,9 @@ export default function PricingPage() {
               </div>
 
               <div className="calc-cta">
-                <a href={calcCtaHref} className="btn-calc-gold">
+                <Link href={checkoutHref} className="btn-calc-gold">
                   {t.calcCtaBtn}
-                </a>
+                </Link>
                 <Link href="/audit" className="btn-calc-ghost">
                   {t.calcAuditBtn}
                 </Link>
