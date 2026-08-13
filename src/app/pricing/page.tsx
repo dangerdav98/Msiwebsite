@@ -27,15 +27,27 @@ export default function PricingPage() {
     const cap = currentPlan === 3 ? 12 : 24;
     if (months > cap) months = cap;
     if (months < 1 || !isFinite(months)) months = 1;
-    const payMonths = currentPlan === 3 ? 3 : months - 1;
-    return { total, monthly, months, payMonths };
+    const payMonths = months - 1;
+
+    // Split the remaining balance as evenly as possible across payMonths so
+    // deposit + every subsequent payment sums exactly to the plan total.
+    let schedule: number[] = [];
+    if (payMonths > 0) {
+      const base = Math.floor(remaining / payMonths);
+      const remainder = remaining - base * payMonths;
+      schedule = Array.from({ length: payMonths }, (_, i) => base + (i < remainder ? 1 : 0));
+    }
+    const minPayment = schedule.length ? Math.min(...schedule) : monthly;
+    const maxPayment = schedule.length ? Math.max(...schedule) : monthly;
+
+    return { total, monthly, months, payMonths, schedule, minPayment, maxPayment };
   }, [currentPlan, deposit]);
 
   const checkoutHref = `/checkout?plan=${currentPlan}&deposit=${calc.monthly}&months=${calc.months}&lang=${lang}&name=${encodeURIComponent(name)}`;
 
   const timelineBars = [];
   for (let i = 0; i < Math.min(calc.payMonths, 12); i++) {
-    timelineBars.push(i + 1);
+    timelineBars.push({ n: i + 1, amount: calc.schedule[i] });
   }
 
   function toggleFaq(i: number) {
@@ -241,7 +253,15 @@ export default function PricingPage() {
                   <div className="result-lbl">{t.resDepLbl}</div>
                 </div>
                 <div className="result-item">
-                  <div className="result-num">${calc.monthly.toLocaleString()}</div>
+                  <div className="result-num">
+                    {calc.payMonths === 0
+                      ? lang === "es"
+                        ? "Pagado"
+                        : "Paid in Full"
+                      : calc.minPayment === calc.maxPayment
+                        ? `$${calc.minPayment.toLocaleString()}`
+                        : `$${calc.minPayment.toLocaleString()}–$${calc.maxPayment.toLocaleString()}`}
+                  </div>
                   <div className="result-lbl">{t.resMoLbl}</div>
                 </div>
                 <div className="result-item">
@@ -259,8 +279,12 @@ export default function PricingPage() {
                   <div className="timeline-bar deposit-bar" data-tip={`${lang === "es" ? "Depósito: " : "Deposit: "}$${calc.monthly.toLocaleString()}`}>
                     Dep.
                   </div>
-                  {timelineBars.map((n) => (
-                    <div key={n} className="timeline-bar" data-tip={`Mo ${n}: $${calc.monthly.toLocaleString()}`}>
+                  {timelineBars.map(({ n, amount }) => (
+                    <div
+                      key={n}
+                      className="timeline-bar"
+                      data-tip={`${lang === "es" ? "Mes" : "Mo"} ${n}: $${amount.toLocaleString()}`}
+                    >
                       {n}
                     </div>
                   ))}
