@@ -45,6 +45,11 @@ async function applyScheduleToSubscription(stripe: Stripe, subscriptionId: strin
     end_behavior: "cancel",
     phases: [
       {
+        // Stripe requires an explicit start_date on the first phase when
+        // replacing the whole phases array on an existing schedule — without
+        // it, the update is rejected ("missing at least one phase with a
+        // start_date to anchor end dates to").
+        start_date: depositPhase.start_date,
         items: depositPhase.items.map((item) => ({ price: item.price as string, quantity: item.quantity })),
         duration: { interval: "month", interval_count: 1 },
       },
