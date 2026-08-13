@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import "./pricing.css";
 import { pricingContent, type Lang } from "./pricing-content";
+import { computeSchedule } from "@/lib/payment-schedule";
 
 export default function PricingPage() {
   const [lang, setLang] = useState<Lang>("en");
@@ -22,28 +23,15 @@ export default function PricingPage() {
   const calc = useMemo(() => {
     const total = currentPlan === 3 ? 5000 : 18000;
     const monthly = deposit || 0;
-    const remaining = total - monthly;
-    let months = remaining <= 0 ? 1 : Math.ceil(remaining / monthly) + 1;
     const cap = currentPlan === 3 ? 12 : 24;
-    if (months > cap) months = cap;
-    if (months < 1 || !isFinite(months)) months = 1;
-    const payMonths = months - 1;
-
-    // Split the remaining balance as evenly as possible across payMonths so
-    // deposit + every subsequent payment sums exactly to the plan total.
-    let schedule: number[] = [];
-    if (payMonths > 0) {
-      const base = Math.floor(remaining / payMonths);
-      const remainder = remaining - base * payMonths;
-      schedule = Array.from({ length: payMonths }, (_, i) => base + (i < remainder ? 1 : 0));
-    }
+    const { months, payMonths, schedule } = computeSchedule(total, monthly, cap);
     const minPayment = schedule.length ? Math.min(...schedule) : monthly;
     const maxPayment = schedule.length ? Math.max(...schedule) : monthly;
 
     return { total, monthly, months, payMonths, schedule, minPayment, maxPayment };
   }, [currentPlan, deposit]);
 
-  const checkoutHref = `/checkout?plan=${currentPlan}&deposit=${calc.monthly}&months=${calc.months}&lang=${lang}&name=${encodeURIComponent(name)}`;
+  const checkoutHref = `/checkout?plan=${currentPlan}&deposit=${calc.monthly}&lang=${lang}&name=${encodeURIComponent(name)}`;
 
   const timelineBars = [];
   for (let i = 0; i < Math.min(calc.payMonths, 12); i++) {

@@ -3,11 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { getStripe } from "@/lib/stripe/server";
 import { createAnonServerClient } from "@/lib/supabase/server";
 import { resolveOrigin } from "@/lib/site-url";
+import { computeSchedule, planTotal, planCap } from "@/lib/payment-schedule";
 
 interface CheckoutBody {
   plan: "3mo" | "12mo";
   deposit: number;
-  months: number;
   name: string;
   businessName?: string;
   phone?: string;
@@ -23,21 +23,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const { plan, deposit, months, name, businessName, phone, email } = body;
+  const { plan, deposit, name, businessName, phone, email } = body;
   const lang = body.lang === "es" ? "es" : "en";
 
   if (plan !== "3mo" && plan !== "12mo") {
     return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
   }
   const depositNum = Number(deposit);
-  const monthsNum = Number(months);
-  const planCap = plan === "3mo" ? 5000 : 18000;
+  const total = planTotal(plan);
   const MIN_DEPOSIT = 1500;
-  if (!Number.isFinite(depositNum) || depositNum < MIN_DEPOSIT || depositNum > planCap) {
+  if (!Number.isFinite(depositNum) || depositNum < MIN_DEPOSIT || depositNum > total) {
     return NextResponse.json({ error: `Deposit must be at least $${MIN_DEPOSIT.toLocaleString()}` }, { status: 400 });
-  }
-  if (!Number.isFinite(monthsNum) || monthsNum < 1 || monthsNum > 24) {
-    return NextResponse.json({ error: "Invalid months" }, { status: 400 });
   }
   if (!name || typeof name !== "string" || !name.trim()) {
     return NextResponse.json({ error: "Name is required" }, { status: 400 });
@@ -45,6 +41,10 @@ export async function POST(req: NextRequest) {
   if (!email || typeof email !== "string" || !email.trim()) {
     return NextResponse.json({ error: "Email is required" }, { status: 400 });
   }
+
+  // Recomputed here rather than trusted from the client, so the amount
+  // actually charged always matches the deposit/plan the customer picked.
+  const { months, payMonths, schedule } = computeSchedule(total, depositNum, planCap(plan));
 
   const planLabel =
     plan === "3mo"
@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
 
   let session;
   try {
-    if (monthsNum <= 1) {
+    if (payMonths === 0) {
       session = await stripe.checkout.sessions.create({
         mode: "payment",
         customer_email: email.trim(),
@@ -82,9 +82,10 @@ export async function POST(req: NextRequest) {
         cancel_url: `${origin}/checkout/cancel`,
       });
     } else {
-      // Note: cancel_at can't be set at Checkout Session creation time for
-      // subscription mode — the webhook applies it via subscriptions.update()
-      // once checkout.session.completed fires and a real subscription exists.
+      // First invoice (deposit) fires immediately via this recurring price.
+      // The webhook converts the subscription into a Subscription Schedule
+      // once it exists, so the remaining cycles bill the exact per-month
+      // amounts in `schedule` instead of repeating the deposit forever.
       session = await stripe.checkout.sessions.create({
         mode: "subscription",
         customer_email: email.trim(),
@@ -118,7 +119,8 @@ export async function POST(req: NextRequest) {
     plan,
     deposit_amount: depositNum,
     monthly_amount: depositNum,
-    months: monthsNum,
+    months,
+    schedule,
     name: name.trim(),
     business_name: businessName?.trim() || null,
     phone: phone?.trim() || null,

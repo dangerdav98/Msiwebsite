@@ -1,16 +1,16 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import "./checkout.css";
+import { computeSchedule, planTotal, planCap } from "@/lib/payment-schedule";
 
 function CheckoutContent() {
   const params = useSearchParams();
   const lang = params.get("lang") === "es" ? "es" : "en";
-  const planParam = params.get("plan") === "12" ? "12" : "3";
+  const plan = params.get("plan") === "12" ? "12mo" : "3mo";
   const deposit = Number(params.get("deposit"));
-  const months = Number(params.get("months"));
 
   const [name, setName] = useState(params.get("name") || "");
   const [businessName, setBusinessName] = useState("");
@@ -19,11 +19,17 @@ function CheckoutContent() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const valid = Number.isFinite(deposit) && deposit >= 1500 && Number.isFinite(months) && months >= 1;
+  const valid = Number.isFinite(deposit) && deposit >= 1500;
 
-  const total = planParam === "12" ? 18000 : 5000;
+  const total = planTotal(plan);
+  const { months, schedule } = useMemo(
+    () => (valid ? computeSchedule(total, deposit, planCap(plan)) : { months: 0, payMonths: 0, schedule: [] as number[] }),
+    [valid, total, deposit, plan]
+  );
+  const minPayment = schedule.length ? Math.min(...schedule) : deposit;
+  const maxPayment = schedule.length ? Math.max(...schedule) : deposit;
   const planLabel =
-    planParam === "12" ? (lang === "es" ? "Plan de 12 Meses" : "12-Month Plan") : lang === "es" ? "Plan de 3 Meses" : "3-Month Plan";
+    plan === "12mo" ? (lang === "es" ? "Plan de 12 Meses" : "12-Month Plan") : lang === "es" ? "Plan de 3 Meses" : "3-Month Plan";
 
   const t =
     lang === "es"
@@ -76,9 +82,8 @@ function CheckoutContent() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          plan: planParam === "12" ? "12mo" : "3mo",
+          plan,
           deposit,
-          months,
           name,
           businessName,
           phone,
@@ -129,7 +134,15 @@ function CheckoutContent() {
         </div>
         <div className="summary-row">
           <span>{t.monthly}</span>
-          <span>${deposit.toLocaleString()}</span>
+          <span>
+            {schedule.length === 0
+              ? lang === "es"
+                ? "Pagado en su totalidad"
+                : "Paid in full"
+              : minPayment === maxPayment
+                ? `$${minPayment.toLocaleString()}`
+                : `$${minPayment.toLocaleString()}–$${maxPayment.toLocaleString()}`}
+          </span>
         </div>
         <div className="summary-row">
           <span>{t.monthsLbl}</span>

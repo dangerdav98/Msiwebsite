@@ -96,6 +96,7 @@ export type Database = {
           name: string
           phone: string | null
           plan: string
+          schedule: Json | null
           status: string
           stripe_checkout_session_id: string | null
           stripe_customer_id: string | null
@@ -114,6 +115,7 @@ export type Database = {
           name: string
           phone?: string | null
           plan: string
+          schedule?: Json | null
           status?: string
           stripe_checkout_session_id?: string | null
           stripe_customer_id?: string | null
@@ -132,6 +134,7 @@ export type Database = {
           name?: string
           phone?: string | null
           plan?: string
+          schedule?: Json | null
           status?: string
           stripe_checkout_session_id?: string | null
           stripe_customer_id?: string | null
