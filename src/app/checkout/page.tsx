@@ -4,7 +4,7 @@ import { Suspense, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import "./checkout.css";
-import { computeSchedule, planTotal, planCap } from "@/lib/payment-schedule";
+import { computeSchedule, planTotal, planTermMonths } from "@/lib/payment-schedule";
 
 function CheckoutContent() {
   const params = useSearchParams();
@@ -22,9 +22,10 @@ function CheckoutContent() {
   const valid = Number.isFinite(deposit) && deposit >= 1500;
 
   const total = planTotal(plan);
-  const { months, schedule } = useMemo(
-    () => (valid ? computeSchedule(total, deposit, planCap(plan)) : { months: 0, payMonths: 0, schedule: [] as number[] }),
-    [valid, total, deposit, plan]
+  const term = planTermMonths(plan);
+  const { schedule } = useMemo(
+    () => (valid ? computeSchedule(total, deposit, term) : { term, payMonths: 0, schedule: [] as number[] }),
+    [valid, total, deposit, term]
   );
   const minPayment = schedule.length ? Math.min(...schedule) : deposit;
   const maxPayment = schedule.length ? Math.max(...schedule) : deposit;
@@ -146,7 +147,7 @@ function CheckoutContent() {
         </div>
         <div className="summary-row">
           <span>{t.monthsLbl}</span>
-          <span>{months}</span>
+          <span>{term}</span>
         </div>
         <div className="summary-row total">
           <span>{t.totalLbl}</span>

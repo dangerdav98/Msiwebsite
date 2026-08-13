@@ -1,38 +1,36 @@
 export interface PlanSchedule {
-  months: number;
+  /** The plan's fixed term length in months (always 3 or 12). */
+  term: number;
+  /** Number of monthly payments after the deposit (0 if paid in full, else === term). */
   payMonths: number;
-  /** Dollar amount of each payment after the deposit, in order. */
+  /** Dollar amount of each payment after the deposit, in order. Length === payMonths. */
   schedule: number[];
 }
 
 /**
- * Computes the payment schedule for a plan: how many total months (deposit
- * counts as month 1), and how the remaining balance splits across the
- * subsequent months. The split is as even as possible (differs by at most
- * $1 between payments) so deposit + every subsequent payment sums exactly
- * to `total`.
+ * The term length is fixed to the plan (3 or 12 months) regardless of
+ * deposit size — the deposit is a separate upfront payment, due before
+ * work begins. Whatever remains after the deposit splits as evenly as
+ * possible across the full term, so deposit + every monthly payment sums
+ * exactly to `total`.
  */
-export function computeSchedule(total: number, deposit: number, cap: number): PlanSchedule {
+export function computeSchedule(total: number, deposit: number, term: number): PlanSchedule {
   const remaining = total - deposit;
-  let months = remaining <= 0 ? 1 : Math.ceil(remaining / deposit) + 1;
-  if (months > cap) months = cap;
-  if (months < 1 || !isFinite(months)) months = 1;
-  const payMonths = months - 1;
-
-  let schedule: number[] = [];
-  if (payMonths > 0) {
-    const base = Math.floor(remaining / payMonths);
-    const remainder = remaining - base * payMonths;
-    schedule = Array.from({ length: payMonths }, (_, i) => base + (i < remainder ? 1 : 0));
+  if (remaining <= 0) {
+    return { term, payMonths: 0, schedule: [] };
   }
 
-  return { months, payMonths, schedule };
+  const base = Math.floor(remaining / term);
+  const remainder = remaining - base * term;
+  const schedule = Array.from({ length: term }, (_, i) => base + (i < remainder ? 1 : 0));
+
+  return { term, payMonths: term, schedule };
 }
 
 export function planTotal(plan: "3mo" | "12mo"): number {
   return plan === "3mo" ? 5000 : 18000;
 }
 
-export function planCap(plan: "3mo" | "12mo"): number {
-  return plan === "3mo" ? 12 : 24;
+export function planTermMonths(plan: "3mo" | "12mo"): number {
+  return plan === "3mo" ? 3 : 12;
 }

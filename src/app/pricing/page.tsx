@@ -23,18 +23,17 @@ export default function PricingPage() {
   const calc = useMemo(() => {
     const total = currentPlan === 3 ? 5000 : 18000;
     const monthly = deposit || 0;
-    const cap = currentPlan === 3 ? 12 : 24;
-    const { months, payMonths, schedule } = computeSchedule(total, monthly, cap);
+    const { term, payMonths, schedule } = computeSchedule(total, monthly, currentPlan);
     const minPayment = schedule.length ? Math.min(...schedule) : monthly;
     const maxPayment = schedule.length ? Math.max(...schedule) : monthly;
 
-    return { total, monthly, months, payMonths, schedule, minPayment, maxPayment };
+    return { total, monthly, term, payMonths, schedule, minPayment, maxPayment };
   }, [currentPlan, deposit]);
 
   const checkoutHref = `/checkout?plan=${currentPlan}&deposit=${calc.monthly}&lang=${lang}&name=${encodeURIComponent(name)}`;
 
   const timelineBars = [];
-  for (let i = 0; i < Math.min(calc.payMonths, 12); i++) {
+  for (let i = 0; i < calc.payMonths; i++) {
     timelineBars.push({ n: i + 1, amount: calc.schedule[i] });
   }
 
@@ -254,7 +253,7 @@ export default function PricingPage() {
                 </div>
                 <div className="result-item">
                   <div className="result-num green">
-                    {calc.months}
+                    {calc.term}
                     {lang === "es" ? " meses" : " mo"}
                   </div>
                   <div className="result-lbl">{t.resMoCountLbl}</div>
@@ -276,11 +275,6 @@ export default function PricingPage() {
                       {n}
                     </div>
                   ))}
-                  {calc.payMonths > 12 && (
-                    <div className="timeline-bar" style={{ background: "var(--mid)" }}>
-                      ...
-                    </div>
-                  )}
                 </div>
               </div>
 

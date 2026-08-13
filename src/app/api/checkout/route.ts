@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getStripe } from "@/lib/stripe/server";
 import { createAnonServerClient } from "@/lib/supabase/server";
 import { resolveOrigin } from "@/lib/site-url";
-import { computeSchedule, planTotal, planCap } from "@/lib/payment-schedule";
+import { computeSchedule, planTotal, planTermMonths } from "@/lib/payment-schedule";
 
 interface CheckoutBody {
   plan: "3mo" | "12mo";
@@ -44,7 +44,8 @@ export async function POST(req: NextRequest) {
 
   // Recomputed here rather than trusted from the client, so the amount
   // actually charged always matches the deposit/plan the customer picked.
-  const { months, payMonths, schedule } = computeSchedule(total, depositNum, planCap(plan));
+  const term = planTermMonths(plan);
+  const { payMonths, schedule } = computeSchedule(total, depositNum, term);
 
   const planLabel =
     plan === "3mo"
@@ -119,7 +120,7 @@ export async function POST(req: NextRequest) {
     plan,
     deposit_amount: depositNum,
     monthly_amount: depositNum,
-    months,
+    months: term,
     schedule,
     name: name.trim(),
     business_name: businessName?.trim() || null,
