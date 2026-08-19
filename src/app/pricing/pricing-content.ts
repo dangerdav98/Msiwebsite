@@ -58,6 +58,15 @@ export interface PricingContent {
   fctaP: string;
   fctaAudit: string;
   fctaEmail: string;
+  fctaFormFirstName: string;
+  fctaFormLastName: string;
+  fctaFormEmail: string;
+  fctaFormPhone: string;
+  fctaFormMessage: string;
+  fctaFormSend: string;
+  fctaFormSending: string;
+  fctaFormSent: string;
+  fctaFormError: string;
   included: IncludedItem[];
   faqs: FaqItem[];
 }
@@ -112,6 +121,15 @@ export const pricingContent: Record<Lang, PricingContent> = {
     fctaP: "Start with the free growth audit. We'll show you exactly where your business has untapped revenue — then you decide if and how you want to work together.",
     fctaAudit: "Take the Free Audit →",
     fctaEmail: "Email David Directly",
+    fctaFormFirstName: "First name",
+    fctaFormLastName: "Last name",
+    fctaFormEmail: "Email address",
+    fctaFormPhone: "Phone number (optional)",
+    fctaFormMessage: "Your message",
+    fctaFormSend: "Send Message",
+    fctaFormSending: "Sending...",
+    fctaFormSent: "Message Sent ✓",
+    fctaFormError: "Something went wrong. Please try again or email david@surfacegrowthco.com directly.",
     included: [
       { h: "Strategy Calls", p: "Regular focused sessions to identify your biggest growth opportunity each month." },
       { h: "Marketing Assets", p: "Emails, flyers, price lists, showroom materials — delivered every month." },
@@ -196,6 +214,15 @@ export const pricingContent: Record<Lang, PricingContent> = {
     fctaP: "Comience con la auditoría de crecimiento gratuita. Le mostraremos exactamente dónde tiene ingresos sin capturar — luego usted decide si y cómo quiere trabajar juntos.",
     fctaAudit: "Tome la Auditoría Gratuita →",
     fctaEmail: "Envíele un Correo a David",
+    fctaFormFirstName: "Nombre",
+    fctaFormLastName: "Apellido",
+    fctaFormEmail: "Correo electrónico",
+    fctaFormPhone: "Número de teléfono (opcional)",
+    fctaFormMessage: "Su mensaje",
+    fctaFormSend: "Enviar Mensaje",
+    fctaFormSending: "Enviando...",
+    fctaFormSent: "Mensaje Enviado ✓",
+    fctaFormError: "Algo salió mal. Intente de nuevo o envíe un correo directamente a david@surfacegrowthco.com.",
     included: [
       { h: "Llamadas de Estrategia", p: "Sesiones enfocadas para identificar su mayor oportunidad de crecimiento cada mes." },
       { h: "Materiales de Mercadotecnia", p: "Correos, volantes, listas de precios, materiales para showroom — entregados cada mes." },

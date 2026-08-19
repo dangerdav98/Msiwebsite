@@ -680,3 +680,63 @@
 .pricing-page .btn-final-ghost:hover {
   border-color: var(--ink);
 }
+.pricing-page .btn-final-ghost:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.pricing-page .final-cta-form {
+  max-width: 480px;
+  margin: 28px auto 0;
+  background: var(--white);
+  border-radius: 6px;
+  padding: 24px;
+  text-align: left;
+}
+.pricing-page .final-cta-form .form-row {
+  display: flex;
+  gap: 10px;
+}
+.pricing-page .final-cta-form input,
+.pricing-page .final-cta-form textarea {
+  width: 100%;
+  padding: 12px 14px;
+  margin-top: 10px;
+  border: 1px solid rgba(26, 26, 46, 0.15);
+  border-radius: 3px;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--white);
+}
+.pricing-page .final-cta-form textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+.pricing-page .final-cta-form input:focus,
+.pricing-page .final-cta-form textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+.pricing-page .final-cta-form .btn-submit {
+  width: 100%;
+  margin-top: 14px;
+  padding: 14px;
+  background: var(--ink);
+  color: var(--white);
+  border: none;
+  border-radius: 3px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.pricing-page .final-cta-form .btn-submit:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+.pricing-page .final-cta-form .form-note {
+  margin-top: 10px;
+  font-size: 13px;
+  text-align: center;
+}

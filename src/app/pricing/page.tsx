@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import "./pricing.css";
 import { pricingContent, type Lang } from "./pricing-content";
@@ -12,6 +12,55 @@ export default function PricingPage() {
   const [deposit, setDeposit] = useState(1500);
   const [name, setName] = useState("");
   const [openFaq, setOpenFaq] = useState<Set<number>>(new Set());
+
+  const [showEmailForm, setShowEmailForm] = useState(false);
+  const [emailSubmitting, setEmailSubmitting] = useState(false);
+  const [emailSubmitted, setEmailSubmitted] = useState(false);
+  const [emailError, setEmailError] = useState(false);
+  const firstNameRef = useRef<HTMLInputElement>(null);
+  const lastNameRef = useRef<HTMLInputElement>(null);
+  const emailFieldRef = useRef<HTMLInputElement>(null);
+  const phoneFieldRef = useRef<HTMLInputElement>(null);
+  const messageFieldRef = useRef<HTMLTextAreaElement>(null);
+
+  async function submitEmailForm() {
+    const firstName = firstNameRef.current?.value.trim() || "";
+    const lastName = lastNameRef.current?.value.trim() || "";
+    const emailVal = emailFieldRef.current?.value.trim() || "";
+    if (!firstName || !lastName || !emailVal) {
+      return;
+    }
+
+    setEmailSubmitting(true);
+    setEmailError(false);
+
+    let ok = false;
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: `${firstName} ${lastName}`,
+          email: emailVal,
+          phone: phoneFieldRef.current?.value.trim() || "",
+          serviceInterest: "Pricing Page Inquiry",
+          message: messageFieldRef.current?.value.trim() || "",
+        }),
+      });
+      ok = res.ok;
+    } catch {
+      ok = false;
+    }
+
+    setEmailSubmitting(false);
+
+    if (!ok) {
+      setEmailError(true);
+      return;
+    }
+
+    setEmailSubmitted(true);
+  }
 
   const t = pricingContent[lang];
 
@@ -326,10 +375,40 @@ export default function PricingPage() {
             <Link href="/audit" className="btn-final-dark">
               {t.fctaAudit}
             </Link>
-            <a href="mailto:david@surfacegrowthco.com" className="btn-final-ghost">
-              {t.fctaEmail}
-            </a>
+            {!showEmailForm && (
+              <button className="btn-final-ghost" onClick={() => setShowEmailForm(true)}>
+                {t.fctaEmail}
+              </button>
+            )}
           </div>
+
+          {showEmailForm && (
+            <div className="final-cta-form">
+              {emailSubmitted ? (
+                <p className="form-note" style={{ color: "var(--green)" }}>
+                  {t.fctaFormSent}
+                </p>
+              ) : (
+                <>
+                  <div className="form-row">
+                    <input ref={firstNameRef} type="text" placeholder={t.fctaFormFirstName} />
+                    <input ref={lastNameRef} type="text" placeholder={t.fctaFormLastName} />
+                  </div>
+                  <input ref={emailFieldRef} type="email" placeholder={t.fctaFormEmail} />
+                  <input ref={phoneFieldRef} type="tel" placeholder={t.fctaFormPhone} />
+                  <textarea ref={messageFieldRef} placeholder={t.fctaFormMessage} />
+                  <button className="btn-submit" onClick={submitEmailForm} disabled={emailSubmitting}>
+                    {emailSubmitting ? t.fctaFormSending : t.fctaFormSend}
+                  </button>
+                  {emailError && (
+                    <p className="form-note" style={{ color: "var(--red)" }}>
+                      {t.fctaFormError}
+                    </p>
+                  )}
+                </>
+              )}
+            </div>
+          )}
         </div>
       </main>
     </div>
