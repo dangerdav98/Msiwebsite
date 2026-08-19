@@ -17,7 +17,7 @@ export async function sendNotification(subject: string, html: string) {
   try {
     const resend = new Resend(apiKey);
     await resend.emails.send({
-      from: "Surface Growth Advisor <onboarding@resend.dev>",
+      from: "Surface Growth Advisor <notifications@surfacegrowthco.com>",
       to,
       subject,
       html,
