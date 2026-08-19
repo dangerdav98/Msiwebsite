@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { getStripe } from "@/lib/stripe/server";
 import { createServiceRoleClient } from "@/lib/supabase/server";
+import { sendNotification } from "@/lib/resend/server";
 
 /** Groups consecutive equal amounts so each distinct price becomes one phase. */
 function groupSchedule(schedule: number[]): { amount: number; iterations: number }[] {
@@ -87,7 +88,11 @@ export async function POST(req: NextRequest) {
     if (orderId) {
       const supabase = createServiceRoleClient();
 
-      const { data: order } = await supabase.from("orders").select("schedule").eq("id", orderId).single();
+      const { data: order } = await supabase
+        .from("orders")
+        .select("schedule, name, business_name, email, phone, plan, deposit_amount")
+        .eq("id", orderId)
+        .single();
 
       await supabase
         .from("orders")
@@ -98,6 +103,21 @@ export async function POST(req: NextRequest) {
           updated_at: new Date().toISOString(),
         })
         .eq("id", orderId);
+
+      if (order) {
+        await sendNotification(
+          `New Paid Order — ${order.name || order.business_name || "Unknown"}`,
+          `
+            <h2>New Order Paid</h2>
+            <p><b>Name:</b> ${order.name || "—"}</p>
+            <p><b>Business:</b> ${order.business_name || "—"}</p>
+            <p><b>Email:</b> ${order.email || "—"}</p>
+            <p><b>Phone:</b> ${order.phone || "—"}</p>
+            <p><b>Plan:</b> ${order.plan || "—"}</p>
+            <p><b>Deposit Paid:</b> $${order.deposit_amount ?? "—"}</p>
+          `
+        );
+      }
 
       const scheduleArr = Array.isArray(order?.schedule) ? (order.schedule as number[]) : [];
 

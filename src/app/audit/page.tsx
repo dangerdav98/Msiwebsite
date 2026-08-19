@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import "./audit.css";
 import { audit, allQuestions, type Lang } from "./audit-content";
-import { createClient } from "@/lib/supabase/client";
 
 type Screen = "hero" | "audit" | "gate" | "results";
 type Answer = "yes" | "no";
@@ -77,16 +76,23 @@ export default function AuditPage() {
       acc[String(i + 1)] = answers[q.id] ?? null;
       return acc;
     }, {});
-    const supabase = createClient();
-    await supabase.from("audit_leads").insert({
-      name: gateName.trim() || null,
-      business_name: gateBiz.trim() || null,
-      phone: gatePhone.trim() || null,
-      email: gateEmail.trim() || null,
-      lang,
-      gap_count: gapCount,
-      answers: numberedAnswers,
-    });
+    try {
+      await fetch("/api/audit-lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: gateName.trim(),
+          businessName: gateBiz.trim(),
+          phone: gatePhone.trim(),
+          email: gateEmail.trim(),
+          lang,
+          gapCount,
+          answers: numberedAnswers,
+        }),
+      });
+    } catch {
+      // Non-blocking: still show results even if the lead save/notify fails.
+    }
     setGateSubmitting(false);
 
     setDisplayName(gateName.trim() || gateBiz.trim());

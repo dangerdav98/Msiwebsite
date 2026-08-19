@@ -4,7 +4,6 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 import { homeContent } from "./home-content";
 import { useLang } from "./lang-context";
-import { createClient } from "@/lib/supabase/client";
 
 export default function HomePage() {
   const { lang } = useLang();
@@ -29,19 +28,28 @@ export default function HomePage() {
     setSubmitting(true);
     setError(false);
 
-    const supabase = createClient();
-    const { error: insertError } = await supabase.from("contact_submissions").insert({
-      name: nameRef.current?.value.trim() || "",
-      business_name: bizRef.current?.value.trim() || null,
-      email: emailRef.current?.value.trim() || null,
-      phone: phoneRef.current?.value.trim() || null,
-      service_interest: serviceRef.current?.value || null,
-      message: msgRef.current?.value.trim() || null,
-    });
+    let ok = false;
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: nameRef.current?.value.trim() || "",
+          businessName: bizRef.current?.value.trim() || "",
+          email: emailRef.current?.value.trim() || "",
+          phone: phoneRef.current?.value.trim() || "",
+          serviceInterest: serviceRef.current?.value || "",
+          message: msgRef.current?.value.trim() || "",
+        }),
+      });
+      ok = res.ok;
+    } catch {
+      ok = false;
+    }
 
     setSubmitting(false);
 
-    if (insertError) {
+    if (!ok) {
       setError(true);
       return;
     }
