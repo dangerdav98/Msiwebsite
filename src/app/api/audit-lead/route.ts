@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAnonServerClient } from "@/lib/supabase/server";
 import { sendNotification } from "@/lib/resend/server";
+import { allQuestions } from "@/app/audit/audit-content";
 
 interface AuditLeadBody {
   name?: string;
@@ -47,6 +48,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Could not save lead" }, { status: 500 });
   }
 
+  const questions = allQuestions(lang);
+  const answersHtml = questions
+    .map((q, i) => {
+      const ans = body.answers?.[String(i + 1)];
+      const label = ans === "yes" ? "✓ Yes" : ans === "no" ? "✗ No" : "—";
+      const isGap = (q.positive && ans === "no") || (!q.positive && ans === "yes");
+      const color = isGap ? "#DC2626" : "#16A34A";
+      return `<tr><td style="padding:4px 8px;">${q.text}</td><td style="padding:4px 8px;color:${color};font-weight:bold;white-space:nowrap;">${label}</td></tr>`;
+    })
+    .join("");
+
   await sendNotification(
     `New Audit Lead — ${name || businessName || "Unknown"}`,
     `
@@ -57,6 +69,8 @@ export async function POST(req: NextRequest) {
       <p><b>Email:</b> ${email || "—"}</p>
       <p><b>Language:</b> ${lang}</p>
       <p><b>Gaps Found:</b> ${gapCount}</p>
+      <h3>Answers</h3>
+      <table style="border-collapse:collapse;">${answersHtml}</table>
     `
   );
 
