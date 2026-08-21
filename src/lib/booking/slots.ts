@@ -106,3 +106,14 @@ export function formatTimeLabel(time: string): string {
   const h12 = h % 12 === 0 ? 12 : h % 12;
   return `${h12}:${pad(m)} ${period}`;
 }
+
+export function formatFullDate(dateStr: string, lang: "en" | "es" = "en"): string {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d, 12));
+  return dt.toLocaleDateString(lang === "es" ? "es-ES" : "en-US", {
+    timeZone: "UTC",
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+}

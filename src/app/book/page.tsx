@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import "./book.css";
-import { formatTimeLabel } from "@/lib/booking/slots";
+import { formatFullDate, formatTimeLabel } from "@/lib/booking/slots";
 
 interface DaySlots {
   date: string;
@@ -16,12 +16,6 @@ function formatDateChip(dateStr: string, lang: "en" | "es") {
   const dt = new Date(Date.UTC(y, m - 1, d, 12));
   const dow = dt.toLocaleDateString(lang === "es" ? "es-ES" : "en-US", { timeZone: "UTC", weekday: "short" });
   return { dow: dow.replace(".", ""), dnum: d };
-}
-
-function formatFullDate(dateStr: string, lang: "en" | "es") {
-  const [y, m, d] = dateStr.split("-").map(Number);
-  const dt = new Date(Date.UTC(y, m - 1, d, 12));
-  return dt.toLocaleDateString(lang === "es" ? "es-ES" : "en-US", { timeZone: "UTC", weekday: "long", month: "long", day: "numeric" });
 }
 
 function splitName(full: string): [string, string] {

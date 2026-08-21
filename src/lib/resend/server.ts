@@ -1,16 +1,15 @@
 import { Resend } from "resend";
 
 /**
- * Sends a notification email to the configured business inbox. Failures are
- * logged but never thrown — a notification email failing to send should
- * never block the actual form submission from succeeding.
+ * Sends an email from the business address. Failures are logged but never
+ * thrown — an email failing to send should never block the actual form
+ * submission from succeeding.
  */
-export async function sendNotification(subject: string, html: string) {
+async function send(to: string, subject: string, html: string) {
   const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.NOTIFY_EMAIL;
 
-  if (!apiKey || !to) {
-    console.error("Resend not configured: missing RESEND_API_KEY or NOTIFY_EMAIL");
+  if (!apiKey) {
+    console.error("Resend not configured: missing RESEND_API_KEY");
     return;
   }
 
@@ -23,6 +22,21 @@ export async function sendNotification(subject: string, html: string) {
       html,
     });
   } catch (err) {
-    console.error("Failed to send notification email", err);
+    console.error("Failed to send email", err);
   }
+}
+
+/** Sends a notification email to the configured business inbox. */
+export async function sendNotification(subject: string, html: string) {
+  const to = process.env.NOTIFY_EMAIL;
+  if (!to) {
+    console.error("Resend not configured: missing NOTIFY_EMAIL");
+    return;
+  }
+  await send(to, subject, html);
+}
+
+/** Sends an email directly to a customer/visitor (e.g. a booking confirmation). */
+export async function sendCustomerEmail(to: string, subject: string, html: string) {
+  await send(to, subject, html);
 }
