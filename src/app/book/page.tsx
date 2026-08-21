@@ -67,6 +67,7 @@ function BookContent() {
           noSlots: "No hay horarios disponibles en este momento. Por favor contáctenos directamente.",
           confirmedH: "¡Reserva Confirmada!",
           confirmedP: "Le enviamos los detalles a su correo. Nos vemos pronto.",
+          confirmedSpamNote: "Si no ve el correo de confirmación en unos minutos, revise su carpeta de spam o correo no deseado.",
           backLink: "← Volver a la Auditoría",
         }
       : {
@@ -87,6 +88,7 @@ function BookContent() {
           noSlots: "No times are currently available. Please contact us directly.",
           confirmedH: "Booking Confirmed!",
           confirmedP: "We've sent the details to your email. Talk soon.",
+          confirmedSpamNote: "Don't see the confirmation email in a few minutes? Check your spam or junk folder.",
           backLink: "← Back to Audit",
         };
 
@@ -155,6 +157,7 @@ function BookContent() {
             {formatFullDate(confirmed.date, lang)} · {formatTimeLabel(confirmed.time)}
           </div>
           <p>{t.confirmedP}</p>
+          <p className="book-note">{t.confirmedSpamNote}</p>
         </div>
       </main>
     );
