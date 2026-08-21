@@ -114,7 +114,7 @@ export default function AuditPage() {
   const lo = gapCount * 1500;
   const hi = gapCount * 3000;
 
-  const mailHref = "mailto:david@surfacegrowthco.com";
+  const bookHref = `/book?lang=${lang}&name=${encodeURIComponent(gateName.trim())}&email=${encodeURIComponent(gateEmail.trim())}&phone=${encodeURIComponent(gatePhone.trim())}&business=${encodeURIComponent(gateBiz.trim())}`;
 
   return (
     <div className="audit-page">
@@ -305,9 +305,9 @@ export default function AuditPage() {
             <div className="eyebrow">{c.ctaEyebrow}</div>
             <h3>{c.ctaHead}</h3>
             <p>{c.ctaBody(gapCount)}</p>
-            <a href={mailHref} className="btn-cta-gold">
+            <Link href={bookHref} className="btn-cta-gold">
               {c.ctaBtn}
-            </a>
+            </Link>
             <Link href="/pricing" className="btn-pricing-link">
               {c.pricingLinkText}
             </Link>
@@ -321,7 +321,7 @@ export default function AuditPage() {
       {/* STICKY CTA */}
       <div className={`sticky-cta ${stickyVisible && screen === "results" ? "visible" : ""}`}>
         <p>{c.stickyText}</p>
-        <a href={mailHref}>{c.stickyLink}</a>
+        <Link href={bookHref}>{c.stickyLink}</Link>
       </div>
     </div>
   );

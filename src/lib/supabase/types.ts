@@ -50,6 +50,45 @@ export type Database = {
         }
         Relationships: []
       }
+      bookings: {
+        Row: {
+          appointment_date: string
+          business_name: string | null
+          created_at: string
+          email: string
+          id: string
+          lang: string
+          name: string
+          phone: string
+          start_time: string
+          status: string
+        }
+        Insert: {
+          appointment_date: string
+          business_name?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          lang?: string
+          name: string
+          phone: string
+          start_time: string
+          status?: string
+        }
+        Update: {
+          appointment_date?: string
+          business_name?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          lang?: string
+          name?: string
+          phone?: string
+          start_time?: string
+          status?: string
+        }
+        Relationships: []
+      }
       contact_submissions: {
         Row: {
           business_name: string | null
