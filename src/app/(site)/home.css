@@ -644,78 +644,6 @@
   display: block;
   margin-bottom: 2px;
 }
-.home-page .contact-form-wrap {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  padding: 36px;
-}
-.home-page .contact-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.home-page .form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-.home-page .contact-form input,
-.home-page .contact-form textarea,
-.home-page .contact-form select {
-  width: 100%;
-  padding: 14px 16px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
-  color: var(--white);
-  font-size: 14px;
-  font-family: var(--sans);
-  outline: none;
-  transition: border-color 0.2s;
-}
-.home-page .contact-form input::placeholder,
-.home-page .contact-form textarea::placeholder {
-  color: rgba(255, 255, 255, 0.25);
-}
-.home-page .contact-form input:focus,
-.home-page .contact-form textarea:focus,
-.home-page .contact-form select:focus {
-  border-color: var(--gold);
-}
-.home-page .contact-form select {
-  color: rgba(255, 255, 255, 0.5);
-}
-.home-page .contact-form select option {
-  background: var(--ink);
-  color: var(--white);
-}
-.home-page .contact-form textarea {
-  height: 100px;
-  resize: none;
-}
-.home-page .btn-submit {
-  padding: 16px;
-  background: var(--gold);
-  color: var(--ink);
-  border: none;
-  border-radius: 2px;
-  font-family: var(--sans);
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.2s;
-  letter-spacing: 0.5px;
-}
-.home-page .btn-submit:hover {
-  background: var(--gold-l);
-}
-.home-page .form-note {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.2);
-  text-align: center;
-  margin-top: 4px;
-}
-
 /* ── FOOTER ── */
 .home-page footer {
   background: rgba(10, 10, 20, 1);
@@ -798,8 +726,5 @@
   }
   .home-page section {
     padding: 72px 6vw;
-  }
-  .home-page .form-row {
-    grid-template-columns: 1fr;
   }
 }

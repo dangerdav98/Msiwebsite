@@ -1,64 +1,14 @@
 "use client";
 
-import { useRef, useState } from "react";
 import Link from "next/link";
 import { homeContent } from "./home-content";
 import { useLang } from "./lang-context";
+import BookingWidget from "@/components/BookingWidget";
 
 export default function HomePage() {
   const { lang } = useLang();
-  const [submitted, setSubmitted] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState(false);
-
-  const nameRef = useRef<HTMLInputElement>(null);
-  const bizRef = useRef<HTMLInputElement>(null);
-  const emailRef = useRef<HTMLInputElement>(null);
-  const phoneRef = useRef<HTMLInputElement>(null);
-  const serviceRef = useRef<HTMLSelectElement>(null);
-  const msgRef = useRef<HTMLTextAreaElement>(null);
 
   const t = homeContent[lang];
-
-  async function submitForm() {
-    if (!nameRef.current?.value.trim() && !emailRef.current?.value.trim()) {
-      nameRef.current?.focus();
-      return;
-    }
-    setSubmitting(true);
-    setError(false);
-
-    let ok = false;
-    try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: nameRef.current?.value.trim() || "",
-          businessName: bizRef.current?.value.trim() || "",
-          email: emailRef.current?.value.trim() || "",
-          phone: phoneRef.current?.value.trim() || "",
-          serviceInterest: serviceRef.current?.value || "",
-          message: msgRef.current?.value.trim() || "",
-        }),
-      });
-      ok = res.ok;
-    } catch {
-      ok = false;
-    }
-
-    setSubmitting(false);
-
-    if (!ok) {
-      setError(true);
-      return;
-    }
-
-    setSubmitted(true);
-    [nameRef, bizRef, emailRef, phoneRef, msgRef].forEach((r) => {
-      if (r.current) r.current.value = "";
-    });
-  }
 
   return (
     <>
@@ -190,41 +140,7 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-          <div className="contact-form-wrap">
-            <div className="contact-form">
-              <div className="form-row">
-                <input ref={nameRef} type="text" placeholder={t["f-name"]} />
-                <input ref={bizRef} type="text" placeholder={t["f-biz"]} />
-              </div>
-              <input ref={emailRef} type="email" placeholder={t["f-email"]} />
-              <input ref={phoneRef} type="tel" placeholder={t["f-phone"]} />
-              <select ref={serviceRef} defaultValue="">
-                <option value="" disabled>
-                  {t["f-sel-placeholder"]}
-                </option>
-                <option>{t["f-o1"]}</option>
-                <option>{t["f-o2"]}</option>
-                <option>{t["f-o3"]}</option>
-                <option>{t["f-o4"]}</option>
-                <option>{t["f-o5"]}</option>
-              </select>
-              <textarea ref={msgRef} placeholder={t["f-msg"]} />
-              <button
-                className="btn-submit"
-                onClick={submitForm}
-                disabled={submitting || submitted}
-                style={submitted ? { background: "#16A34A" } : undefined}
-              >
-                {submitted ? t["f-sent"] : submitting ? t["f-sending"] : t["f-btn"]}
-              </button>
-              {error && (
-                <p className="form-note" style={{ color: "var(--red)" }}>
-                  {t["f-error"]}
-                </p>
-              )}
-              <p className="form-note">{t["f-note"]}</p>
-            </div>
-          </div>
+          <BookingWidget lang={lang} />
         </div>
       </section>
     </>
