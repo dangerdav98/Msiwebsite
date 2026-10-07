@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAnonServerClient } from "@/lib/supabase/server";
-import { sendNotification } from "@/lib/resend/server";
+import { NOT_SAVED_BANNER, sendNotification } from "@/lib/resend/server";
 import { allQuestions } from "@/app/audit/audit-content";
 
 interface AuditLeadBody {
@@ -45,7 +45,6 @@ export async function POST(req: NextRequest) {
 
   if (insertError) {
     console.error("Audit lead insert failed", insertError);
-    return NextResponse.json({ error: "Could not save lead" }, { status: 500 });
   }
 
   const questions = allQuestions(lang);
@@ -59,9 +58,10 @@ export async function POST(req: NextRequest) {
     })
     .join("");
 
-  await sendNotification(
-    `New Audit Lead — ${name || businessName || "Unknown"}`,
+  const sent = await sendNotification(
+    `${insertError ? "[NOT SAVED] " : ""}New Audit Lead — ${name || businessName || "Unknown"}`,
     `
+      ${insertError ? NOT_SAVED_BANNER : ""}
       <h2>New Business Growth Audit Completed</h2>
       <p><b>Name:</b> ${name || "—"}</p>
       <p><b>Business:</b> ${businessName || "—"}</p>
@@ -73,6 +73,11 @@ export async function POST(req: NextRequest) {
       <table style="border-collapse:collapse;">${answersHtml}</table>
     `
   );
+
+  // The lead is only lost if it neither saved nor emailed.
+  if (insertError && !sent) {
+    return NextResponse.json({ error: "Could not save lead" }, { status: 500 });
+  }
 
   return NextResponse.json({ ok: true });
 }

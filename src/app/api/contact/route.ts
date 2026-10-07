@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAnonServerClient } from "@/lib/supabase/server";
-import { sendNotification } from "@/lib/resend/server";
+import { NOT_SAVED_BANNER, sendNotification } from "@/lib/resend/server";
 
 interface ContactBody {
   name: string;
@@ -42,12 +42,12 @@ export async function POST(req: NextRequest) {
 
   if (insertError) {
     console.error("Contact submission insert failed", insertError);
-    return NextResponse.json({ error: "Could not save submission" }, { status: 500 });
   }
 
-  await sendNotification(
-    `New Contact Form Submission — ${name || "Unknown"}`,
+  const sent = await sendNotification(
+    `${insertError ? "[NOT SAVED] " : ""}New Contact Form Submission — ${name || "Unknown"}`,
     `
+      ${insertError ? NOT_SAVED_BANNER : ""}
       <h2>New Contact Form Submission</h2>
       <p><b>Name:</b> ${name || "—"}</p>
       <p><b>Business:</b> ${businessName || "—"}</p>
@@ -57,6 +57,11 @@ export async function POST(req: NextRequest) {
       <p><b>Message:</b><br>${(message || "—").replace(/\n/g, "<br>")}</p>
     `
   );
+
+  // The lead is only lost if it neither saved nor emailed.
+  if (insertError && !sent) {
+    return NextResponse.json({ error: "Could not save submission" }, { status: 500 });
+  }
 
   return NextResponse.json({ ok: true });
 }

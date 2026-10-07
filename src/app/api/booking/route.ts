@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAnonServerClient } from "@/lib/supabase/server";
-import { sendCustomerEmail, sendNotification } from "@/lib/resend/server";
+import { NOT_SAVED_BANNER, sendCustomerEmail, sendNotification } from "@/lib/resend/server";
 import { formatFullDate, formatTimeLabel, generateBookingWindow, isValidSlot } from "@/lib/booking/slots";
 
 interface BookingBody {
@@ -62,6 +62,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "That time was just booked. Please pick another." }, { status: 409 });
     }
     console.error("Booking insert failed", insertError);
+    // The slot couldn't be confirmed, but make sure the request isn't lost.
+    await sendNotification(
+      `[BOOKING FAILED] Strategy call request — ${name}`,
+      `
+        ${NOT_SAVED_BANNER}
+        <p>This person tried to book a call but the booking was <b>not confirmed</b>. They saw an error. Please contact them.</p>
+        <p><b>Name:</b> ${name}</p>
+        <p><b>Business:</b> ${businessName || "—"}</p>
+        <p><b>Phone:</b> ${phone}</p>
+        <p><b>Email:</b> ${email}</p>
+        <p><b>Requested:</b> ${date} at ${formatTimeLabel(time)} (Mountain Time)</p>
+      `
+    );
     return NextResponse.json({ error: "Could not save booking" }, { status: 500 });
   }
 
